@@ -127,3 +127,14 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# VS CODE SETTINGS
+.vscode/
+.vscode
+
+#Config
+config.py
+
+#Templates (TEMPORARY)
+templates/
+deleteme.ipynb
