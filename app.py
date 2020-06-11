@@ -39,11 +39,11 @@ def Welcome():
     """List all available api routes."""
     return (
         f"Available Routes:<br/>"
-        f"/api/v1.0/precipitation<br/>"
-        f"/api/v1.0/stations<br/>"
-        f"/api/v1.0/tobs<br/>"
-        f"/api/v1.0/<start><br/>"
-        f"/api/v1.0/<start>/<end><br/>"
+        f"<a href='/api/v1.0/precipitation'>/api/v1.0/precipitation</a><br/>"
+        f"<a href='/api/v1.0/stations'>/api/v1.0/stations</a><br/>"
+        f"<a href='/api/v1.0/tobs'>/api/v1.0/tobs</a><br/>"
+        f"/api/v1.0/YYYY-MM-DD <br/>"
+        f"/api/v1.0/YYYY-MM-DD/YYYY-MM-DD (start date/end date)<br/>"
     )
 
 
@@ -108,7 +108,6 @@ def Temp_Obs():
 
     results = (session.query(*columns)
                  .filter(Measurement.date > '2016-08-18')
-                #  .filter(Measurement.tobs == meas_highest_tobs_top)
                  .order_by(Measurement.date.desc()).all())
 
     session.close()
@@ -167,7 +166,7 @@ def Start_Date_Search(start_date):
         """
         return session.query(func.min(Measurement.tobs), func.avg(Measurement.tobs), func.max(Measurement.tobs)).filter(Measurement.date >= start_date).filter(Measurement.date <= latest_date).all()
 
-    session.close()
+    # session.close()
 
     # Get input, lower text for matching purposes. Date may not apply but input anyways
     canonicalized = start_date.replace(" ", "").lower()
@@ -178,12 +177,7 @@ def Start_Date_Search(start_date):
 
     if search_term == canonicalized:
         results = calc_temps(start_date)
-
-        return (
-            f'<h1>Temperature Observation Minumum, Average, and Maximum for date range {search_term} to {latest_date}:</h1><br/>'
-            f'Minumum - Average - Maximum<br/>'
-            f'{results}')
-
+        return jsonify(results)
 
     else:
         return jsonify({"error": f"{start_date} not found. Date given is not located in database or wrong format. Date format is 'YYYY-MM-DD'."}), 404
@@ -220,7 +214,7 @@ def End_Date_Search(start_date, end_date):
     except:
         return jsonify({"error": f"{end_date} not found. Date given is not located in database or wrong format. Date format is 'YYYY-MM-DD'."}), 404
            
-
+    # Get min, avg, max of dates passed
     def calc_temps(start_date, end_date):
         """TMIN, TAVG, and TMAX for a list of dates.
         Args:
@@ -233,8 +227,7 @@ def End_Date_Search(start_date, end_date):
         """
         return session.query(func.min(Measurement.tobs), func.avg(Measurement.tobs), func.max(Measurement.tobs)).filter(Measurement.date >= start_date).filter(Measurement.date <= end_date).all()
 
-
-    session.close()
+    # session.close()
 
 
     # Get input, lower text for matching purposes. Date may not apply but input anyways
@@ -246,109 +239,14 @@ def End_Date_Search(start_date, end_date):
     search_term_end = input_end_date.replace(" ", "").lower()
 
     # (search_term, search_term_end) = (canonicalized, canonicalized)
-
     if (search_term, search_term_end) == (canonicalized, canonicalized_end):
         results = calc_temps(start_date, end_date)
-
-        return (
-            f'<h2>Temperature Observation Minumum, Average, and Maximum for date range {search_term} to {search_term_end}:</h1><br/>'
-            f'Minumum - Average - Maximum<br/>'
-            f'{results}')
-
+        return jsonify(results)
 
     else:
         return jsonify({"error": f"Start and End date provided do not match after verifying with the database. Start: {start_date}, End: {end_date}."}), 404
-        # return (f'passed canonicalized {canonicalized}, passed search_term {search_term}, NOT results')
-    
-
-
-
-
-
-
 
 
 if __name__ == '__main__':
     app.run(debug=True)
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-#################################################
-# Flask Routes
-# #################################################
-
-# @app.route("/")
-# def welcome():
-#     """List all available api routes."""
-#     return (
-#         f"Available Routes:<br/>"
-#         f"/api/v1.0/names<br/>"
-#         f"/api/v1.0/passengers"
-#     )
-
-
-# @app.route("/api/v1.0/names")
-# def names():
-#     # Create our session (link) from Python to the DB
-#     session = Session(engine)
-
-#     """Return a list of all passenger names"""
-#     # Query all passengers
-#     results = session.query(Passenger.name).all()
-
-#     session.close()
-
-#     # Convert list of tuples into normal list
-#     all_names = list(np.ravel(results))
-
-#     return jsonify(all_names)
-
-
-# @app.route("/api/v1.0/passengers")
-# def passengers():
-#     # Create our session (link) from Python to the DB
-#     session = Session(engine)
-
-#     """Return a list of passenger data including the name, age, and sex of each passenger"""
-#     # Query all passengers
-#     results = session.query(Passenger.name, Passenger.age, Passenger.sex).all()
-
-#     session.close()
-
-#     # Create a dictionary from the row data and append to a list of all_passengers
-#     all_passengers = []
-#     for name, age, sex in results:
-#         passenger_dict = {}
-#         passenger_dict["name"] = name
-#         passenger_dict["age"] = age
-#         passenger_dict["sex"] = sex
-#         all_passengers.append(passenger_dict)
-
-#     return jsonify(all_passengers)
-
-
-# if __name__ == '__main__':
-#     app.run(debug=True)
