@@ -182,8 +182,6 @@ def Start_Date_Search(start_date):
     else:
         return jsonify({"error": f"{start_date} not found. Date given is not located in database or wrong format. Date format is 'YYYY-MM-DD'."}), 404
        
-    
-
 
 
 # @app.route("/api/v1.0/<start>/<end>")
